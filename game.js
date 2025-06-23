@@ -771,7 +771,7 @@ function setupDiscordLogin() {
   loginButton.addEventListener('click', () => {
     
     const clientId = '1386817096184500325'; 
-    const redirectUri = 'https://geniusiksl.github.io/irys-labyrinth/callback'; 
+    const redirectUri = 'https://geniusiksl.github.io/irys-labyrinth/auth/callback'; 
     const scope = 'identify';
     const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${scope}`;
     
