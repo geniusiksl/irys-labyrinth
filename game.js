@@ -832,31 +832,38 @@ function updateDiscordLogin() {
 }
 
 function saveProgress() {
+  const progress = {
+    maxLevelReached: gameState.maxLevelReached,
+    totalCoins: gameState.totalCoins,
+    skinIndex: gameState.player.skinIndex,
+    levelStates: Object.fromEntries(gameState.levelStates)
+  };
   if (gameState.discordUserId) {
-    const progress = {
-      maxLevelReached: gameState.maxLevelReached,
-      totalCoins: gameState.totalCoins,
-      levelStates: Object.fromEntries(gameState.levelStates)
-    };
     localStorage.setItem(`progress_${gameState.discordUserId}`, JSON.stringify(progress));
-    console.log(`Progress saved for user ${gameState.discordUserId}:`, progress);
   } else {
-    localStorage.removeItem(`progress_${gameState.discordUserId}`); 
-    console.log('No Discord user logged in, progress cleared');
+    localStorage.setItem('progress', JSON.stringify(progress));
   }
+  console.log('Progress saved:', progress);
 }
 
 function loadProgress() {
+  let progress;
   if (gameState.discordUserId) {
-    const userProgress = localStorage.getItem(`progress_${gameState.discordUserId}`);
-    if (userProgress) {
-      const parsedProgress = JSON.parse(userProgress);
-      gameState.maxLevelReached = parsedProgress.maxLevelReached || gameState.maxLevelReached;
-      gameState.totalCoins = parsedProgress.totalCoins || gameState.totalCoins;
-      gameState.levelStates = new Map(Object.entries(parsedProgress.levelStates || {}));
-      console.log(`Progress loaded for user ${gameState.discordUserId}: maxLevelReached=${gameState.maxLevelReached}, totalCoins=${gameState.totalCoins}`);
-      updateUI(); 
+    progress = localStorage.getItem(`progress_${gameState.discordUserId}`);
+  } else {
+    progress = localStorage.getItem('progress');
+  }
+  if (progress) {
+    progress = JSON.parse(progress);
+    gameState.maxLevelReached = progress.maxLevelReached || gameState.maxLevelReached;
+    gameState.totalCoins = progress.totalCoins || gameState.totalCoins;
+    gameState.player.skinIndex = progress.skinIndex || gameState.player.skinIndex;
+    if (progress.levelStates) {
+      gameState.levelStates = new Map(Object.entries(progress.levelStates));
     }
+    console.log('Progress loaded:', progress);
+    updateUI();
+    updateSkinsUI();
   }
 }
 
@@ -866,15 +873,23 @@ function init() {
       throw new Error('Canvas or context not found. Check if <canvas id="game-canvas"> exists in HTML.');
     }
 
-    
+    loadProgress(); 
+
     const storedMaxLevel = localStorage.getItem('maxLevelReached');
     if (storedMaxLevel) {
       gameState.maxLevelReached = parseInt(storedMaxLevel);
-      console.log(`Init: Loaded maxLevelReached from localStorage: ${gameState.maxLevelReached}`);
-    } else {
-      console.log(`Init: No stored maxLevelReached, using default: ${gameState.maxLevelReached}`);
     }
 
+    jumpSound.preload = 'auto';
+    winSound.preload = 'auto';
+
+    window.addEventListener('keydown', (e) => {
+      gameState.keys[e.key] = true;
+      calculateJump();
+    });
+    window.addEventListener('keyup', (e) => {
+      gameState.keys[e.key] = false;
+    });
     
     jumpSound.preload = 'auto';
     winSound.preload = 'auto';
