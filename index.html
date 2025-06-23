@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Irys Labyrinth</title>
+<link rel="icon" type="image/png" href="icon.png">
+
+<link rel="stylesheet" href="styles.css" />
+<script defer src="game.js"></script>
+</head>
+<body>
+
+
+<div id="loading-screen">
+  <img id="logo" src="logo.png" alt="Irys Labyrinth Logo" />
+</div>
+
+<audio id="jump-sound" src="jump.mp3"></audio>
+<audio id="win-sound" src="win.mp3"></audio>
+
+
+<div id="game-container" style="display:none;">
+<header>
+  <div id="level-info">
+    <span id="current-level">Level 1</span>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+  </div>
+  <div id="score-container">
+    <span id="score-label">Score:</span>
+    <span id="score-value">0</span>
+  </div>
+  <div id="coins">
+    <span>Coins: </span><span id="coin-count">0</span>
+  </div>
+  <div id="discord-login">
+    <button id="login-button">Login with Discord</button>
+  </div>
+  
+</header>
+
+  <main>
+    <canvas id="game-canvas" width="400" height="600"></canvas>
+
+    <div id="tabs">
+      <button id="map-tab" class="tab-button active">Map</button>
+      <button id="skins-tab" class="tab-button">Skins</button>
+    </div>
+
+    <section id="map-content" class="tab-content active">
+      <div id="level-grid"></div>
+    </section>
+
+    <section id="skins-content" class="tab-content">
+      <div class="skins-container">
+      </div>
+    </section>
+  </main>
+</div>
+
+</body>
+</html>
