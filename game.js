@@ -811,24 +811,7 @@ function updateDiscordLogin() {
     avatar.style.marginRight = '10px';
     avatar.style.display = 'inline-block';
 
-    const logoutButton = document.createElement('button');
-    logoutButton.textContent = 'Logout';
-    logoutButton.style.backgroundColor = '#FF4444';
-    logoutButton.style.border = 'none';
-    logoutButton.style.color = 'white';
-    logoutButton.style.padding = '5px 10px';
-    logoutButton.style.borderRadius = '5px';
-    logoutButton.style.cursor = 'pointer';
-    logoutButton.addEventListener('click', () => {
-      gameState.discordUserId = null;
-      updateDiscordLogin();
-      saveProgress(); 
-      console.log('Logged out');
-    });
-
-    discordLogin.appendChild(avatar);
-    discordLogin.appendChild(logoutButton);
-  }
+    };
 }
 
 function saveProgress() {
