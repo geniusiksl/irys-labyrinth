@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Callback</title>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        
+        if (accessToken) {
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage(
+              JSON.stringify({ type: 'discord-auth', token: accessToken }), 
+              'https://geniusiksl.github.io/irys-labyrinth/' 
+            );
+          } else {
+            console.error('Opener window not available');
+          }
+        } else {
+          console.error('No access token found in URL hash');
+        }
+      } catch (error) {
+        console.error('Callback error:', error);
+      } finally {
+        window.close();
+      }
+      window.location.href = "https://geniusiksl.github.io/irys-labyrinth/" + window.location.hash;
+    });
+  </script>
+</head>
+<body>
+  <p>Processing Discord login...</p>
+</body>
+</html>
