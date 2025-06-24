@@ -7,27 +7,30 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       try {
+        
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const accessToken = hashParams.get('access_token');
         
-        if (accessToken) {
-          if (window.opener && !window.opener.closed) {
-            window.opener.postMessage(
-              JSON.stringify({ type: 'discord-auth', token: accessToken }), 
-              'https://geniusiksl.github.io/irys-labyrinth/' 
-            );
-          } else {
-            console.error('Opener window not available');
-          }
+        if (accessToken && window.opener && !window.opener.closed) {
+          
+          window.opener.postMessage(
+            { 
+              type: 'discord-auth', 
+              token: accessToken 
+            },
+            'https://geniusiksl.github.io' // Только домен без пути
+          );
+          
+          
+          window.location.href = "https://geniusiksl.github.io/irys-labyrinth/";
         } else {
-          console.error('No access token found in URL hash');
+          console.error('Auth failed:', {accessToken, openerAvailable: !!window.opener});
+          window.location.href = "https://geniusiksl.github.io/irys-labyrinth/";
         }
       } catch (error) {
         console.error('Callback error:', error);
-      } finally {
-        window.close();
+        window.location.href = "https://geniusiksl.github.io/irys-labyrinth/";
       }
-      window.location.href = "https://geniusiksl.github.io/irys-labyrinth/" + window.location.hash;
     });
   </script>
 </head>
