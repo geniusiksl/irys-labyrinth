@@ -768,35 +768,49 @@ function setupDiscordLogin() {
     soundToggle.textContent = gameState.isSoundOn ? 'Sound On' : 'Sound Off';
   });
 
-  loginButton.addEventListener('click', () => {
+loginButton.addEventListener('click', () => {
+  const clientId = '1386817096184500325';
+  const redirectUri = 'https://geniusiksl.github.io/irys-labyrinth/callback.html';
+  const scope = 'identify';
+  const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${scope}`;
+
+  // Открываем окно сразу после клика пользователя (меньше шансов на блокировку)
+  const oauthWindow = window.open(oauthUrl, 'DiscordOAuth', 'width=600,height=600');
+  
+  if (!oauthWindow) {
+    alert('Please allow popups for this site to login with Discord');
+    return;
+  }
+
+  // Обработчик сообщений
+  const messageHandler = (event) => {
+    // Проверяем origin сообщения
+    if (event.origin !== "https://geniusiksl.github.io/irys-labyrinth/") return;
     
-    const clientId = '1386817096184500325'; 
-    const redirectUri = 'https://geniusiksl.github.io/irys-labyrinth/auth/callback'; 
-    const scope = 'identify';
-    const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${scope}`;
-    
-    
-    const oauthWindow = window.open(oauthUrl, 'DiscordOAuth', 'width=600,height=600');
-    
-    
-    const checkOAuth = setInterval(() => {
-      if (oauthWindow.closed) {
-        clearInterval(checkOAuth);
-        
-        const mockUserId = '803602745261031444'; 
-        if (mockUserId) {
-          gameState.discordUserId = mockUserId;
-          loadProgress(); 
-          console.log(`Logged in as Discord user ${gameState.discordUserId}`);
+    try {
+      const data = JSON.parse(event.data);
+      if (data.type === 'discord-auth' && data.token) {
+        fetch('https://discord.com/api/users/@me', {
+          headers: { Authorization: `Bearer ${data.token}` },
+        })
+        .then(response => response.json())
+        .then(user => {
+          gameState.discordUserId = user.id;
+          loadProgress();
+          console.log(`Logged in as ${user.username}#${user.discriminator}`);
           updateDiscordLogin();
-        } else {
-          loginButton.textContent = 'Login with Discord';
-          gameState.discordUserId = null;
-          console.log('Login failed or cancelled');
-        }
+        })
+        .catch(error => console.error('Error fetching user:', error));
+        
+        window.removeEventListener('message', messageHandler);
       }
-    }, 500);
-  });
+    } catch (e) {
+      console.error('Message handling error:', e);
+    }
+  };
+
+  window.addEventListener('message', messageHandler);
+});
 }
 
 function updateDiscordLogin() {
